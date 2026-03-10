@@ -11,7 +11,7 @@ public class Main extends JFrame
 		
 		setDefaultCloseOperation( EXIT_ON_CLOSE );
 		setTitle( "Cells" );
-		setSize( 450,150 );
+		setSize( 750,550 );
 		setVisible( true );
 		setLocationRelativeTo( null );
 		setResizable( false );
@@ -20,5 +20,8 @@ public class Main extends JFrame
 	public static void main(String [] args)
 	{
 		new Main();
+		GUI gui = new GUI();
+		gui.boardlayout();
+		gui.repaint();
 	}
 }
