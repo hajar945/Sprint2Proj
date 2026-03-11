@@ -23,6 +23,6 @@ public class Main extends JFrame
 		GUI gui = new GUI();
 		gui.boardlayout();
 		gui.repaint();
-   
+		gui.ButtonExample();    
 	}
 }

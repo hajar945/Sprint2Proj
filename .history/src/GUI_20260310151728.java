@@ -39,31 +39,8 @@ public class GUI extends JPanel
 	{
 		setBackground( Color.WHITE );
 		setDoubleBuffered( true );
-
-        // Create a frame
-        Frame frame = new Frame("Button Example");
-      
-        // Create a butotn
-        Button button = new Button("Click");
- 
-        // Set the button position on the frame
-        button.setBounds(150, 130, 50, 50);
-
-        // Add the button to the frame
-        frame.add(button);
-
-        // Set the frame size and layout
-        frame.setSize(400, 400);
-        frame.setLayout(null);
-
-        // Set the frame visibility to true
-        frame.setVisible(true);
-        
-
     }
 
-  
-    
 @Override
 public void paintComponent(Graphics g) {
          super.paintComponent( g );

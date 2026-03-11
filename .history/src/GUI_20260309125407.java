@@ -3,11 +3,8 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Toolkit;
 import java.util.Arrays;
-import java.awt.Button;
-import java.awt.Frame;
 
 import javax.swing.*;
-
 
 public class GUI extends JPanel 
 {
@@ -39,31 +36,8 @@ public class GUI extends JPanel
 	{
 		setBackground( Color.WHITE );
 		setDoubleBuffered( true );
+	}
 
-        // Create a frame
-        Frame frame = new Frame("Button Example");
-      
-        // Create a butotn
-        Button button = new Button("Click");
- 
-        // Set the button position on the frame
-        button.setBounds(150, 130, 50, 50);
-
-        // Add the button to the frame
-        frame.add(button);
-
-        // Set the frame size and layout
-        frame.setSize(400, 400);
-        frame.setLayout(null);
-
-        // Set the frame visibility to true
-        frame.setVisible(true);
-        
-
-    }
-
-  
-    
 @Override
 public void paintComponent(Graphics g) {
          super.paintComponent( g );
@@ -76,11 +50,12 @@ public void paintComponent(Graphics g) {
 		// Initializing row and column sizes of 7x7
 		arr = new int[7][7];
 	// ENGLISH BOARD LAYOUT
+	/* 
 	for (int i = 0; i < 7; i++) { // for each row
 		for (int j = 0; j < 7; j++) { // for each column 
 			if ((i < 2 || i > 4)&& (j < 2 || j > 4)){
-				// g.setColor(Color.red);
-				// g.fillOval(j*30, i*30, 10, 10);
+				g.setColor(Color.red);
+				g.fillOval(j*30, i*30, 10, 10);
 				arr[i][j] = 0; // Assign 0 to invalid spaces
 			
 				}  else if ((i == 3)&&(j == 3)){
@@ -98,8 +73,8 @@ public void paintComponent(Graphics g) {
             
 		} 
 
-	
-/* 
+		*/
+
 // HEXAGON BOARD LAYOUT
 // https://dev.to/jitheshpoojari/mastering-c-programming-drawing-filled-patterns-with-loops-4def#filled-hexagon
 int n = 5;
@@ -132,7 +107,7 @@ for (int i = n/2 - 1; i >= 0; i--) {
     }
 
     System.out.println();
-    */
+}
 }
 }
 

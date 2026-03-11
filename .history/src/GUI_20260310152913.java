@@ -44,10 +44,10 @@ public class GUI extends JPanel
         Frame frame = new Frame("Button Example");
       
         // Create a butotn
-        Button button = new Button("Click");
+        Button button = new Button("Click")
  
         // Set the button position on the frame
-        button.setBounds(150, 130, 50, 50);
+        button.setBounds(150, 130, 100, 30);
 
         // Add the button to the frame
         frame.add(button);

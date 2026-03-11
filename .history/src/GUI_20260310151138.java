@@ -8,7 +8,6 @@ import java.awt.Frame;
 
 import javax.swing.*;
 
-
 public class GUI extends JPanel 
 {
 	public int[][] boardlayout(){
@@ -39,31 +38,29 @@ public class GUI extends JPanel
 	{
 		setBackground( Color.WHITE );
 		setDoubleBuffered( true );
+	}
 
+    public static void main(String[] args)
+    {
         // Create a frame
         Frame frame = new Frame("Button Example");
-      
-        // Create a butotn
-        Button button = new Button("Click");
- 
+        // Create a button
+        Button button = new Button("Click Me!");
+
         // Set the button position on the frame
-        button.setBounds(150, 130, 50, 50);
+        button.setBounds(150, 130, 100, 30);
 
         // Add the button to the frame
         frame.add(button);
 
         // Set the frame size and layout
-        frame.setSize(400, 400);
+        frame.setSize(400, 300);
         frame.setLayout(null);
 
         // Set the frame visibility to true
         frame.setVisible(true);
-        
-
     }
 
-  
-    
 @Override
 public void paintComponent(Graphics g) {
          super.paintComponent( g );
@@ -80,7 +77,7 @@ public void paintComponent(Graphics g) {
 		for (int j = 0; j < 7; j++) { // for each column 
 			if ((i < 2 || i > 4)&& (j < 2 || j > 4)){
 				// g.setColor(Color.red);
-				// g.fillOval(j*30, i*30, 10, 10);
+				g.fillOval(j*30, i*30, 10, 10);
 				arr[i][j] = 0; // Assign 0 to invalid spaces
 			
 				}  else if ((i == 3)&&(j == 3)){
