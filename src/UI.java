@@ -1,5 +1,6 @@
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
 
 // timer is a built-in class that repeatedly runs code on a time delay
 import javax.swing.*;
@@ -12,11 +13,17 @@ public class UI extends JPanel implements ActionListener, MouseListener {
     private JRadioButton englishBtn, hexagonBtn, diamondBtn;
     private JRadioButton manualModeBtn, autoModeBtn;
     private JLabel message;
+    private JButton recordBtn, replayBtn; 
 
+    private boolean isReplaying = false; // bool to tell the program if a playback sequence is currently happening on the screen
     private boolean gameInProgress;
+
+    private int replayIndex = 0; // counter number to keep track of exactly which move in the list is currently being played back
     private int selectedRow, selectedCol;
+    
     private Move[] legalMoves;
     private Timer autoTimer;
+    private Timer replayTimer; // timer that ticks every half second to space out the playback of the moves
 
     public UI() {
         // program defaults to the manual mode subclass on launch
@@ -73,6 +80,24 @@ public class UI extends JPanel implements ActionListener, MouseListener {
         randomizeBtn = new JButton("Randomize");
         randomizeBtn.addActionListener(this);
 
+        // make the record button and attach the click listener so the computer knows when it is clicked.
+        recordBtn = new JButton("Start Recording");
+        recordBtn.addActionListener(this);
+
+        // make the replay button, attach the listener, and disable it so the user cannot click it yet.
+        replayBtn = new JButton("Replay");
+        replayBtn.addActionListener(this);
+        replayBtn.setEnabled(false);
+
+        // set up the replay timer to tick exactly once every 500 milliseconds
+        replayTimer = new Timer(500, new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                // every time the 500 milliseconds passes, run this method to show one single jump
+                executeReplayStep();
+            }
+        });
+
+        
         // adds all the graphic elements to a vertical list on the left side of the window
         buttonPanel.add(newGameButton);
         buttonPanel.add(Box.createRigidArea(new Dimension(0, 10)));
@@ -90,7 +115,12 @@ public class UI extends JPanel implements ActionListener, MouseListener {
         buttonPanel.add(autoplayBtn);
         buttonPanel.add(Box.createRigidArea(new Dimension(0, 10)));
         buttonPanel.add(randomizeBtn);
+        buttonPanel.add(Box.createRigidArea(new Dimension(0, 10))); // adds blank space between the buttons
+        buttonPanel.add(recordBtn); // adds the record button to the left side
+        buttonPanel.add(Box.createRigidArea(new Dimension(0, 10))); // adds blank space between the buttons
+        buttonPanel.add(replayBtn); // adds the replay button to the left side
 
+        
         message = new JLabel("", JLabel.CENTER);
         message.setFont(new Font("Serif", Font.BOLD, 14));
         message.setForeground(Color.GREEN);
@@ -121,6 +151,34 @@ public class UI extends JPanel implements ActionListener, MouseListener {
             // start the looping timer
             autoTimer.start();
             message.setText("Autoplay is running...");
+        }
+        // If the user clicked the record button.
+        else if (src == recordBtn) {
+            // Check if the game is currently recording already.
+            if (game.isRecording()) {
+                // If it was recording, tell the game file to stop recording.
+                game.stopRecording();
+                // Change the button text back to normal.
+                recordBtn.setText("Start Recording");
+                // Enable the Replay button now that the recording process is completely finished.
+                replayBtn.setEnabled(true);
+                // Change the text at the bottom of the screen.
+                message.setText("Recording stopped.");
+            } else {
+                // If it was NOT recording, tell the game file to copy the board layout and start saving moves.
+                game.startRecording();
+                // Change the button text so the user knows how to stop the process.
+                recordBtn.setText("Stop Recording");
+                // Keep the replay button disabled because the recording list is not finished yet.
+                replayBtn.setEnabled(false);
+                // Change the text at the bottom of the screen.
+                message.setText("Recording started...");
+            }
+        }
+        // If the user clicked the replay button.
+        else if (src == replayBtn) {
+            // Trigger the method that resets the board layout and starts the playback.
+            startReplay();
         }
         else {
             // updates the shape and mode variables based on the radio button clicked
@@ -332,6 +390,9 @@ public class UI extends JPanel implements ActionListener, MouseListener {
     }
 
     public void mousePressed(MouseEvent evt) {
+
+        // if playback is currently running, ignore the mouse click completely and stop reading code
+        if (isReplaying) return;
         if (!gameInProgress) {
             message.setText("Click \"New Game\" to start a new game.");
         } else {
@@ -346,4 +407,71 @@ public class UI extends JPanel implements ActionListener, MouseListener {
     public void mouseClicked(MouseEvent evt) { }
     public void mouseEntered(MouseEvent evt) { }
     public void mouseExited(MouseEvent evt) { }
+
+    // prepares the board and starts the replay timer
+    private void startReplay() {
+        // check if the recorded list is completely empty. If it is empty, stop reading code here to avoid a crash
+        if (game.getRecordedHistory().isEmpty()) return;
+        
+        // change the game state to false so normal game rules stop applying
+        gameInProgress = false;
+        
+        // stop the auto robot timer just in case it was accidentally left running
+        autoTimer.stop();
+        
+        // tell the game file to erase the current board and put the backup layout back into memory
+        game.restoreRecordStartState();
+        
+        // reset the counter to 0 so the playback starts from the very first move in the list
+        replayIndex = 0;
+        
+        // set to true to permanently block human mouse clicks during the playback
+        isReplaying = true;
+        
+        // start the 500 millisecond timer
+        replayTimer.start();
+        
+        // update the text label at the bottom of the screen
+        message.setText("Replaying...");
+        
+        // redraw the graphics so the user physically sees the backup layout appear on the screen
+        repaint();
+    }
+
+    // executes exactly one single recorded jump every time the timer reaches 500 milliseconds
+    private void executeReplayStep() {
+        // get the full list of saved moves from the Game file
+        ArrayList<Move> history = game.getRecordedHistory();
+        
+        // check if our counter number is currently smaller than the total amount of saved moves in the list
+        if (replayIndex < history.size()) {
+            // if yes, pull one saved move out of the list using the current counter number
+            Move m = history.get(replayIndex);
+            
+            // force the game to execute that exact jump by passing the four saved coordinates
+            // strictly call the int version of makeMove so it does not accidentally trigger a new recording
+            game.makeMove(m.fromRow, m.fromCol, m.toRow, m.toCol); 
+            
+            // increase the counter number by 1 so next time the timer runs, it grabs the next move in the sequence
+            replayIndex++;
+            
+            // redraw the graphics so the user physically sees the piece disappear and reappear.=
+            repaint();
+        } else {
+            // if counter has reached the end of the list, the sequence is over. Stop the timer
+            replayTimer.stop();
+            
+            // set back back to false so the user is allowed to click the mouse again
+            isReplaying = false;
+            
+            // tell the program the normal game mode has resumed
+            gameInProgress = true;
+            
+            // get new list of legal moves based on the current layout so the human can continue playing
+            legalMoves = game.getLegalMoves();
+            
+            // check if the board is in a stuck or won state before letting the human play
+            checkGameOverConditions();
+        }
+    }
 }
